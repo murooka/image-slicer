@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="画像で作った LP を楽天向けに自動スライスするツール" />
+    <meta name="theme-color" content="#bf0000" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <title>LP Image Slicer</title>
   </head>
   <body>
@@ -94,6 +98,12 @@
         <label class="html-label">楽天用 HTML<textarea id="html" rows="6" readonly></textarea></label>
       </section>
     </main>
+
+    <div id="pwa-toast" class="toast" role="status" hidden>
+      <span id="pwa-toast-text"></span>
+      <button id="pwa-reload" type="button" hidden>更新する</button>
+      <button id="pwa-close" class="secondary" type="button">閉じる</button>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

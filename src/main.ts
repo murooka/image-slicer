@@ -4,6 +4,7 @@ import { checkSegments, planSlices } from "./planner";
 import { computeScores, DEFAULT_SCORE_PARAMS } from "./scoring";
 import type { Features, ScoreParams, Segment, SliceParams, Zone } from "./types";
 import type { ExportedSlice, OutputFormat, WorkerRequest, WorkerResponse } from "./worker";
+import { setupPwa } from "./pwa";
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -554,3 +555,5 @@ function formatBytes(n: number): string {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
   return `${(n / 1024 / 1024).toFixed(2)} MB`;
 }
+
+setupPwa();
