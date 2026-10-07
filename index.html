@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LP Image Slicer</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>LP Image Slicer</h1>
+      <p>画像で作った LP を、色が切り替わる位置で楽天向けに自動スライスします。処理はすべてブラウザ内で行われ、画像はアップロードされません。</p>
+    </header>
+
+    <main class="layout">
+      <aside class="panel">
+        <label id="drop" class="drop">
+          <input id="file" type="file" accept="image/*" hidden />
+          <span id="drop-text">画像をドロップ<br />またはクリックして選択</span>
+        </label>
+        <p id="image-info" class="muted"></p>
+
+        <fieldset data-auto>
+          <legend>分割条件</legend>
+          <label>最小高さ (px)<input id="minHeight" type="number" min="1" value="200" /></label>
+          <label>最大高さ (px)<input id="maxHeight" type="number" min="2" value="1000" /></label>
+          <label>最大分割枚数<input id="maxCount" type="number" min="1" value="30" /></label>
+        </fieldset>
+
+        <details>
+          <summary>判定の調整</summary>
+          <fieldset data-auto>
+            <label title="分割位置の上下で色分布を比較する範囲">比較する帯の高さ (px)<input id="bandSize" type="number" min="1" /></label>
+            <label title="上下の帯の色分布の違いを重視する度合い">色分布の差の重み<input id="wBand" type="number" min="0" step="0.1" /></label>
+            <label title="直上の行との色の違いを重視する度合い">境界線の重み<input id="wEdge" type="number" min="0" step="0.1" /></label>
+            <label title="文字や写真を横切らない位置を重視する度合い。0 にすると色の変化だけで判定します">均一な行の重み<input id="wFlat" type="number" min="0" step="0.1" /></label>
+          </fieldset>
+        </details>
+
+        <fieldset data-auto>
+          <legend>切らない範囲</legend>
+          <p class="hint">分割線をクリックすると、その付近では切らなくなります。画像上を上下にドラッグして範囲を指定することもできます。斜線の範囲をクリックすると解除します。</p>
+          <label>クリックで無効化する幅 (±px)<input id="zoneRadius" type="number" min="1" value="40" /></label>
+          <div class="zone-row">
+            <span id="zone-count">切らない範囲: 0 件</span>
+            <button id="clear-zones" class="secondary" type="button" disabled>すべて解除</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>書き出し</legend>
+          <label>形式
+            <select id="format">
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/png">PNG</option>
+            </select>
+          </label>
+          <label>JPEG 品質<input id="quality" type="number" min="0.5" max="1" step="0.05" value="0.9" /></label>
+          <label title="超えた場合は JPEG 品質を下げて再圧縮します。0 で無制限">1 枚あたりの上限 (KB)<input id="maxKB" type="number" min="0" value="2000" /></label>
+          <label>ファイル名の接頭辞<input id="prefix" type="text" value="lp_" /></label>
+          <label title="楽天用 HTML の画像 URL に使います">画像の配置先 URL<input id="baseUrl" type="text" placeholder="https://image.rakuten.co.jp/SHOP/cabinet/lp/" /></label>
+        </fieldset>
+
+        <button id="export" type="button" disabled>スライスを書き出す</button>
+
+        <div id="progress" class="progress" hidden>
+          <div class="progress-label"><span id="progress-phase"></span><span id="progress-pct"></span></div>
+          <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+        </div>
+        <p id="message" class="message" role="status"></p>
+      </aside>
+
+      <section class="preview-area">
+        <div id="summary" class="muted">画像を選択するとプレビューと分割位置が表示されます。</div>
+        <div id="manual-bar" class="manual-bar" hidden>
+          <span>手動で編集中です。分割条件と切らない範囲は反映されません。</span>
+          <span class="manual-actions">
+            <button id="undo" class="secondary" type="button" title="Ctrl/⌘ + Z">元に戻す</button>
+            <button id="revert" class="secondary" type="button">自動分割に戻す</button>
+          </span>
+        </div>
+        <p id="preview-hint" class="hint preview-hint"></p>
+        <div id="preview" class="preview" hidden>
+          <img id="preview-img" alt="プレビュー" draggable="false" />
+          <div id="overlay" class="overlay"></div>
+        </div>
+      </section>
+
+      <section id="results" class="results" hidden>
+        <div class="results-head">
+          <h2>書き出し結果</h2>
+          <button id="zip" type="button">ZIP でダウンロード</button>
+        </div>
+        <ol id="slice-list" class="slice-list"></ol>
+        <label class="html-label">楽天用 HTML<textarea id="html" rows="6" readonly></textarea></label>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
