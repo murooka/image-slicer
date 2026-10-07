@@ -46,11 +46,13 @@ Chrome / Edge ではアドレスバーのインストールボタン、iOS Safar
 
 ## 開発
 
+パッケージ管理には pnpm を使います（バージョンは `package.json` の `packageManager` で固定）。
+
 ```sh
-npm install
-npm run dev     # 開発サーバー
-npm test        # 単体テスト
-npm run build   # dist/ に出力
+pnpm install
+pnpm dev     # 開発サーバー
+pnpm test    # 単体テスト
+pnpm build   # dist/ に出力
 ```
 
 ## デプロイ
