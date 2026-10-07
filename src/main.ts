@@ -36,11 +36,15 @@ const previewHint = $("preview-hint");
 const num = (id: string) => Number($<HTMLInputElement>(id).value);
 const str = (id: string) => $<HTMLInputElement>(id).value;
 
+// 初期値として設定しておき、リセット時に defaultValue へ戻せるようにする
 for (const [key, value] of Object.entries(DEFAULT_SCORE_PARAMS)) {
-  $<HTMLInputElement>(key).value = String(value);
+  $<HTMLInputElement>(key).defaultValue = String(value);
 }
 
-const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+const initialDropText = dropText.innerHTML;
+const initialSummary = summary.textContent;
+
+let worker = createWorker();
 
 let features: Features | null = null;
 let scores: Float32Array | null = null;
@@ -61,7 +65,18 @@ function send(req: WorkerRequest): void {
   worker.postMessage(req);
 }
 
-worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
+function createWorker(): Worker {
+  const w = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+  w.onmessage = onWorkerMessage;
+  w.onerror = (e) => {
+    setBusy(false);
+    hideProgress();
+    setMessage(`処理中にエラーが発生しました: ${e.message}`, "error");
+  };
+  return w;
+}
+
+function onWorkerMessage(e: MessageEvent<WorkerResponse>): void {
   const msg = e.data;
   switch (msg.type) {
     case "progress":
@@ -85,13 +100,7 @@ worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
       setMessage(msg.message, "error");
       break;
   }
-};
-
-worker.onerror = (e) => {
-  setBusy(false);
-  hideProgress();
-  setMessage(`処理中にエラーが発生しました: ${e.message}`, "error");
-};
+}
 
 // ---- 画像の読み込み ----
 
@@ -398,6 +407,8 @@ revertButton.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (e) => {
+  // 説明書を開いている間は背後の編集を操作しない
+  if ((document.getElementById("help") as HTMLDialogElement).open) return;
   const tag = (e.target as HTMLElement).tagName;
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === "z" && tag !== "INPUT" && tag !== "TEXTAREA" && manualCuts) {
     e.preventDefault();
@@ -428,6 +439,66 @@ function addZone(top: number, bottom: number): void {
 function onZonesChanged(): void {
   updateControls();
   replan();
+}
+
+// ---- 説明書 ----
+
+const help = $<HTMLDialogElement>("help");
+$("help-open").addEventListener("click", () => {
+  help.showModal();
+  help.querySelector(".help-body")!.scrollTop = 0;
+});
+$("help-close").addEventListener("click", () => help.close());
+// 枠の外（背景）をクリックしたら閉じる
+help.addEventListener("click", (e) => {
+  if (e.target === help) help.close();
+});
+
+// ---- リセット ----
+
+$("reset").addEventListener("click", () => {
+  if ((features || busy) && !confirm("画像と編集内容をすべて破棄して、最初の状態に戻しますか？")) return;
+  resetAll();
+});
+
+/** 開いた直後（画像が未選択）の状態に戻す。設定も初期値に戻す */
+function resetAll(): void {
+  // 解析・書き出し中なら Worker ごと止める（後から結果が届かないようにする）
+  if (busy) {
+    worker.terminate();
+    worker = createWorker();
+  }
+  clearTimeout(replanTimer);
+  features = null;
+  scores = null;
+  scoreKey = "";
+  segments = [];
+  forced = [];
+  zones = [];
+  manualCuts = null;
+  undoStack = [];
+
+  clearResults();
+  overlay.replaceChildren();
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  previewUrl = null;
+  previewImg.removeAttribute("src");
+  preview.hidden = true;
+  fileInput.value = "";
+  dropText.innerHTML = initialDropText;
+  imageInfo.textContent = "";
+  summary.textContent = initialSummary;
+
+  for (const el of document.querySelectorAll<HTMLInputElement>(".panel input:not([type=file])")) el.value = el.defaultValue;
+  for (const el of document.querySelectorAll<HTMLSelectElement>(".panel select")) {
+    el.value = [...el.options].find((o) => o.defaultSelected)?.value ?? el.options[0].value;
+  }
+  for (const el of document.querySelectorAll<HTMLDetailsElement>(".panel details")) el.open = false;
+
+  setMessage("");
+  hideProgress();
+  setBusy(false);
+  window.scrollTo(0, 0);
 }
 
 // ---- 書き出し ----

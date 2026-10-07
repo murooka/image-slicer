@@ -11,8 +11,14 @@
   </head>
   <body>
     <header class="app-header">
-      <h1>Image Slicer</h1>
-      <p>縦長の画像を、色が切り替わる位置で自動的に分割します。処理はすべてブラウザ内で行われ、画像はアップロードされません。</p>
+      <div>
+        <h1>Image Slicer</h1>
+        <p>縦長の画像を、色が切り替わる位置で自動的に分割します。処理はすべてブラウザ内で行われ、画像はアップロードされません。</p>
+      </div>
+      <div class="header-actions">
+        <button id="help-open" class="secondary" type="button">説明書</button>
+        <button id="reset" class="secondary" type="button" title="画像の選択前の状態に戻します（設定も初期値に戻ります）">リセット</button>
+      </div>
     </header>
 
     <main class="layout">
@@ -98,6 +104,120 @@
         <label class="html-label">HTML（img タグ）<textarea id="html" rows="6" readonly></textarea></label>
       </section>
     </main>
+
+    <dialog id="help" class="help" aria-labelledby="help-title">
+      <div class="help-head">
+        <h2 id="help-title">Image Slicer の使い方</h2>
+        <button id="help-close" class="secondary" type="button" aria-label="閉じる">閉じる</button>
+      </div>
+      <div class="help-body">
+        <section>
+          <h3>このツールでできること</h3>
+          <p>縦に長い画像を、<strong>色が切り替わる位置で自動的に分割</strong>します。分割の位置は画面上で確認・調整してから書き出せます。</p>
+          <p>画像はインターネット上に送信されず、すべてお使いのブラウザの中で処理されます。</p>
+        </section>
+
+        <section>
+          <h3>かんたん3ステップ</h3>
+          <ol>
+            <li><strong>画像を選ぶ</strong>：左上の枠に画像をドラッグ＆ドロップするか、枠をクリックして選びます。</li>
+            <li><strong>分割位置を確認する</strong>：右側のプレビューに赤い線で分割位置が表示されます。必要なら線を動かしたり消したりできます。</li>
+            <li><strong>書き出す</strong>：「スライスを書き出す」を押し、ZIP でまとめて、または1枚ずつダウンロードします。</li>
+          </ol>
+        </section>
+
+        <section>
+          <h3>1. 画像を選ぶ</h3>
+          <ul>
+            <li>JPEG・PNG・WebP など、ブラウザで表示できる画像に対応しています。</li>
+            <li>縦に長い画像ほど、読み込みに時間がかかります。進み具合は左のバーに表示されます。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>2. 分割の条件を決める</h3>
+          <p>「分割条件」で、分割後の画像の大きさを指定します。値を変えると、プレビューの分割線がすぐに更新されます。</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>項目</th><th>意味</th><th>初期値</th></tr></thead>
+              <tbody>
+                <tr><td>最小高さ</td><td>分割後の画像の、高さの最小値</td><td>200px</td></tr>
+                <tr><td>最大高さ</td><td>分割後の画像の、高さの最大値。すべての画像がこれ以下になるまで分割します</td><td>1000px</td></tr>
+                <tr><td>最大分割枚数</td><td>分割してよい枚数の上限</td><td>30枚</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>最大高さは、最小高さの2倍以上にしてください。</li>
+            <li>枚数が足りない場合などは、条件を満たせない理由が赤字で表示されます。</li>
+          </ul>
+          <h4>分割位置の決まり方</h4>
+          <p>色が大きく切り替わる位置（背景色が変わる境目など）を優先して分割します。プレビューの右端には、「番号: 高さ」のラベルが表示されます。</p>
+          <p>「判定の調整」では、判定の細かい重みを変えられます。通常は変更する必要はありません。</p>
+        </section>
+
+        <section>
+          <h3>3. 分割位置を調整する</h3>
+          <p>自動で決まった位置が意図と違うときは、プレビュー上で調整できます。</p>
+          <h4>方法A：「ここでは切らない」と指定する（条件は守ったまま）</h4>
+          <ul>
+            <li><strong>分割線をクリック</strong>すると、その付近（初期値は上下40px）が「切らない範囲」になります。条件を満たす別の位置が、自動で選び直されます。</li>
+            <li><strong>画像の上を上下にドラッグ</strong>すると、その範囲を「切らない範囲」にできます。</li>
+            <li>斜線で表示された範囲をクリックすると解除できます。「すべて解除」で全部消せます。</li>
+            <li>ほかに条件を満たす位置がない場合に限り、やむを得ず範囲内で切ります。その線はオレンジの破線で表示されます。</li>
+          </ul>
+          <h4>方法B：分割線を直接編集する（条件より自分の指定を優先）</h4>
+          <ul>
+            <li><strong>分割線をドラッグ</strong>すると移動します。</li>
+            <li><strong>分割線にカーソルを乗せて表示される × を押す</strong>と削除します。</li>
+            <li><strong>画像をダブルクリック</strong>すると、その位置に分割線を追加します。</li>
+          </ul>
+          <p>これらの操作を行うと「手動編集中」になります。手動編集中は、分割条件や切らない範囲は反映されません。</p>
+          <ul>
+            <li>条件を満たさない画像はラベルがオレンジ色になり、警告が表示されます。そのままでも書き出せます。</li>
+            <li>「元に戻す」（<kbd>Ctrl</kbd>+<kbd>Z</kbd>／Mac は <kbd>⌘</kbd>+<kbd>Z</kbd>）で、1操作ずつ取り消せます。</li>
+            <li>「自動分割に戻す」を押すと、手動の編集を破棄して自動の分割に戻ります。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>4. 書き出す</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>項目</th><th>説明</th></tr></thead>
+              <tbody>
+                <tr><td>形式</td><td>JPEG または PNG</td></tr>
+                <tr><td>JPEG 品質</td><td>0.5〜1。大きいほど高画質で、ファイルサイズも大きくなります</td></tr>
+                <tr><td>1枚あたりの上限 (KB)</td><td>超えた場合は、JPEG の品質を自動で下げて収めます（下限 0.5）。0 は上限なしです</td></tr>
+                <tr><td>ファイル名の接頭辞</td><td>例：<code>slice_</code> → <code>slice_01.jpg</code>, <code>slice_02.jpg</code> …</td></tr>
+                <tr><td>画像の配置先 URL</td><td>入力すると、出力される HTML の画像の URL に使われます</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>「スライスを書き出す」を押すと、下に結果が表示されます。</p>
+          <ul>
+            <li>ファイル名をクリックすると、1枚ずつダウンロードできます。</li>
+            <li>「ZIP でダウンロード」で、まとめてダウンロードできます。</li>
+            <li>「HTML（img タグ）」には、分割した画像を順に並べるための HTML が表示されます。Web ページに貼り付けて使えます。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>最初からやり直す</h3>
+          <p>右上の「リセット」を押すと、画像を選ぶ前の状態に戻ります。設定も初期値に戻ります。</p>
+        </section>
+
+        <section>
+          <h3>アプリとして使う</h3>
+          <p>一度開けば、インターネットに接続していなくても使えます。</p>
+          <ul>
+            <li>パソコンの Chrome・Edge：アドレスバーのインストールボタンからインストールできます。</li>
+            <li>iPhone・iPad：Safari の共有メニューから「ホーム画面に追加」を選びます。</li>
+          </ul>
+          <p>新しいバージョンが公開されると、画面右下に案内が出ます。</p>
+        </section>
+      </div>
+    </dialog>
 
     <div id="pwa-toast" class="toast" role="status" hidden>
       <span id="pwa-toast-text"></span>
