@@ -13,9 +13,9 @@ export default defineConfig({
       // アイコンは globPatterns でプリキャッシュされるため二重登録しない
       includeManifestIcons: false,
       manifest: {
-        name: "LP Image Slicer",
-        short_name: "LP Slicer",
-        description: "画像で作った LP を楽天向けに自動スライスするツール",
+        name: "Image Slicer",
+        short_name: "Image Slicer",
+        description: "縦長の画像を、色が切り替わる位置で自動的に分割するツール",
         lang: "ja",
         start_url: "./",
         scope: "./",

@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="画像で作った LP を楽天向けに自動スライスするツール" />
+    <meta name="description" content="縦長の画像を、色が切り替わる位置で自動的に分割するツール" />
     <meta name="theme-color" content="#bf0000" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-    <title>LP Image Slicer</title>
+    <title>Image Slicer</title>
   </head>
   <body>
     <header class="app-header">
-      <h1>LP Image Slicer</h1>
-      <p>画像で作った LP を、色が切り替わる位置で楽天向けに自動スライスします。処理はすべてブラウザ内で行われ、画像はアップロードされません。</p>
+      <h1>Image Slicer</h1>
+      <p>縦長の画像を、色が切り替わる位置で自動的に分割します。処理はすべてブラウザ内で行われ、画像はアップロードされません。</p>
     </header>
 
     <main class="layout">
@@ -59,9 +59,9 @@
             </select>
           </label>
           <label>JPEG 品質<input id="quality" type="number" min="0.5" max="1" step="0.05" value="0.9" /></label>
-          <label title="超えた場合は JPEG 品質を下げて再圧縮します。0 で無制限">1 枚あたりの上限 (KB)<input id="maxKB" type="number" min="0" value="2000" /></label>
-          <label>ファイル名の接頭辞<input id="prefix" type="text" value="lp_" /></label>
-          <label title="楽天用 HTML の画像 URL に使います">画像の配置先 URL<input id="baseUrl" type="text" placeholder="https://image.rakuten.co.jp/SHOP/cabinet/lp/" /></label>
+          <label title="超えた場合は JPEG 品質を下げて再圧縮します。0 で無制限">1 枚あたりの上限 (KB)<input id="maxKB" type="number" min="0" value="0" /></label>
+          <label>ファイル名の接頭辞<input id="prefix" type="text" value="slice_" /></label>
+          <label title="出力する HTML の画像 URL に使います">画像の配置先 URL<input id="baseUrl" type="text" placeholder="https://example.com/images/" /></label>
         </fieldset>
 
         <button id="export" type="button" disabled>スライスを書き出す</button>
@@ -95,7 +95,7 @@
           <button id="zip" type="button">ZIP でダウンロード</button>
         </div>
         <ol id="slice-list" class="slice-list"></ol>
-        <label class="html-label">楽天用 HTML<textarea id="html" rows="6" readonly></textarea></label>
+        <label class="html-label">HTML（img タグ）<textarea id="html" rows="6" readonly></textarea></label>
       </section>
     </main>
 

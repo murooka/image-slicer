@@ -166,7 +166,7 @@ describe("planSlices", () => {
 });
 
 describe("end to end", () => {
-  it("LP 風の画像をセクション境界で分割する", () => {
+  it("縦長の画像をセクション境界で分割する", () => {
     const img = makeImage(80, [
       { height: 600, color: [250, 240, 220], text: true },
       { height: 400, color: [30, 60, 160], text: true },
